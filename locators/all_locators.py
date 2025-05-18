@@ -5,7 +5,8 @@ class HomePageLocators:
     account_link = (By.XPATH, "//a[@href='/account']")                        # Ссылка "Личный кабинет"
     constructor_tab = (By.XPATH, "//p[text()='Конструктор']")                 # Вкладка "Конструктор"
     logo = (By.CSS_SELECTOR, "div[class^='AppHeader_header__logo']")             # Логотип Stellar Burgers
-    logo = (By.CSS_SELECTOR, "div[class^='AppHeader_header__logo']")             # Логотип Stellar Burgers
+    order_button = (By.XPATH,"//button[text()='Оформить заказ']")               #Кнопка "Оформить заказ"
+
 
 class LoginPageLocators:
     login_label = (By.XPATH, "//h2[text()='Вход']")                          # Заголовок "Вход"
@@ -28,7 +29,7 @@ class AccountPageLocators:
     name_input = (By.XPATH, "//label[text()='Имя']/following-sibling::input")    # Поле Имя в ЛК
     login_input = (By.XPATH, "//label[text()='Логин']/following-sibling::input") # Поле Логин в ЛК
     password_input = (By.XPATH, "//label[text()='Пароль']/following-sibling::input")  # Поле Пароль в ЛК
-    login_button = (By.XPATH, "//button[text()='Выход']")                       # Кнопка "Выход" (logout)
+    logout_button = (By.XPATH, "//button[text()='Выход']")                       # Кнопка "Выход" (logout)
 
 class ConstructorPageLocators:
     buns_section = (By.XPATH, "//span[text()='Булки']/..")                      # Раздел "Булки"

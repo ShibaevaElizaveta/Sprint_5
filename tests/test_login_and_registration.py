@@ -1,23 +1,18 @@
+from time import sleep
+
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from locators.all_locators import *
 from helpers.data_helpers import DataHelpers
-from test_data.test_data import UserData
+from test_data.test_data import UserData,Urls
 import pytest
 
-
+@pytest.mark.usefixtures("setup")
 class TestLoginAndRegistration:
-    @pytest.fixture(autouse=True)
-    def setup(self, create_driver):
-        self.driver = create_driver
-        self.wait = WebDriverWait(self.driver, 15)
-        self.data = DataHelpers()
-        self.user = UserData()
 
     def test_successful_registration(self):
 
-        self.driver.get("https://stellarburgers.nomoreparties.site/register")
-
+        self.driver.get(Urls.register)
 
         name = "TestUser"
         email = self.data.generate_login()
@@ -32,9 +27,21 @@ class TestLoginAndRegistration:
 
         self.wait.until(EC.url_contains("/login"))
 
+        self.driver.find_element(*LoginPageLocators.login_input).send_keys(email)
+        self.driver.find_element(*LoginPageLocators.password_input).send_keys(password)
+        self.driver.find_element(*LoginPageLocators.login_button).click()
+        order_button = self.wait.until(
+            EC.visibility_of_element_located(HomePageLocators.order_button)
+        )
+        assert self.driver.current_url == Urls.home_page, \
+            "Пользователь был перенаправлен на главную страницу после входа"
+
+        assert order_button.text == "Оформить заказ", \
+            f"Текст кнопки совпадает. получено: '{order_button.text}'"
+
     def test_invalid_password_registration(self):
 
-        self.driver.get("https://stellarburgers.nomoreparties.site/register")
+        self.driver.get(Urls.register)
 
         self.driver.find_element(*RegistrationPageLocators.name_input).send_keys("TestUser")
         self.driver.find_element(*RegistrationPageLocators.email_input).send_keys("test@example.com")
@@ -63,18 +70,22 @@ class TestLoginAndRegistration:
         self.driver.find_element(*LoginPageLocators.login_button).click()
 
 
-        self.wait.until(EC.url_to_be("https://stellarburgers.nomoreparties.site/"))
+        self.wait.until(EC.url_to_be(Urls.home_page))
 
+        order_button = self.wait.until(
+            EC.visibility_of_element_located(HomePageLocators.order_button)
+        )
+
+        assert order_button.text == "Оформить заказ", \
+            f"Текст кнопки совпадает. получено: '{order_button.text}'"
+
+    @pytest.mark.usefixtures("authorized_driver")
     def test_logout(self):
-
-        self.driver.get("https://stellarburgers.nomoreparties.site/login")
-
-
-        self.driver.find_element(*LoginPageLocators.login_input).send_keys(self.user.email)
-        self.driver.find_element(*LoginPageLocators.password_input).send_keys(self.user.password)
-        self.driver.find_element(*LoginPageLocators.login_button).click()
-
-
         self.wait.until(EC.element_to_be_clickable(HomePageLocators.account_link)).click()
-        self.wait.until(EC.element_to_be_clickable(AccountPageLocators.login_button)).click()
+        self.wait.until(EC.element_to_be_clickable(AccountPageLocators.logout_button)).click()
         self.wait.until(EC.url_contains("/login"))
+        login_button = self.wait.until(
+            EC.visibility_of_element_located(LoginPageLocators.login_button)
+        )
+        assert login_button.text == "Войти", \
+            f"Текст кнопки совпадает. получено: '{login_button.text}'"
